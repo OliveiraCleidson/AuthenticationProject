@@ -8,7 +8,7 @@ const user = require('../controllers/UserController');
 //   next();
 // });
 
-
+//Routing from /user
 router.get('/', user.list);
 router.post('/:id', user.getById);
 router.delete('/:id', user.delete);
