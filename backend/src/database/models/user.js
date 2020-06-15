@@ -12,7 +12,10 @@ module.exports = (sequelize, DataTypes) => {
     },
     lastName: DataTypes.STRING,
     email: DataTypes.STRING,
-    password: DataTypes.STRING,
+    password: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
     // Timestamps
     createdAt: DataTypes.DATE,
     updatedAt: DataTypes.DATE
