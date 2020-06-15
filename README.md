@@ -1,4 +1,11 @@
 This repository is did to I practice programming, it will be authentication project.'
+<b>Still under construction.</b>
+
+This Project (will) use:
+
+Express, Sequelize, Celebrate, Passport
+
+
 
 To run locally
 
@@ -6,4 +13,4 @@ To run locally
     Create database with the name same as in config file
     Run npm install or yarn install
     Run sequelize db:migrate
-    Run nodemon or npm start
+    Run nodemon app.js
