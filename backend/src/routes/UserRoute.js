@@ -11,7 +11,11 @@ const { celebrate, Joi, Segments } = require('celebrate');
 
 //Routing from /user
 router.get('/', user.list);
-router.get('/:id', user.getById);
+router.get('/:id', celebrate({
+  [Segments.PARAMS]: Joi.object().keys({
+    id: Joi.number().required()
+  })
+}), user.getById);
 router.delete('/:id', user.delete);
 router.put('/:id', user.update);
 
@@ -22,13 +26,9 @@ router.post('/', celebrate({
     email: Joi
       .string().email({ minDomainSegments: 2, tlds: true })
       .required(),
-    password: Joi.string().required().length(6)
+    password: Joi.string().required().min(6)
   })
 }), user.create);
-
-router.get('/about', function (req, res) {
-  res.send('About birds');
-});
 
 module.exports = router;
 
