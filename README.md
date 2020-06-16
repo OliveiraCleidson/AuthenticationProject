@@ -3,7 +3,7 @@ This repository is did to I practice programming, it will be authentication proj
 
 This Project (will) use:
 
-Express, Sequelize, Celebrate, Passport
+Express, Sequelize, Celebrate, Passport, Celebrate
 
 
 
