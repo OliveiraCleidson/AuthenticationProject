@@ -50,7 +50,7 @@ module.exports = {
             password: password,
           })
           .then((user) => {
-            res.status(201).json({
+            return res.status(201).json({
               'Message': 'The user has been created'
             });
           })
@@ -63,7 +63,7 @@ module.exports = {
 
   async update(req, res) {
     const { firstName, lastName, email, password, id } = req.body;
-    const { newFirstName, newLastName, newEmail, newPassword, changePass = 0 } = req.body;
+    let { newFirstName, newLastName, newEmail, newPassword } = req.body;
     return user.findAll({
       where: {
         id
@@ -74,41 +74,33 @@ module.exports = {
           const hash = resp[0].password;
           bcrypt.compare(password, hash)
             .then((match) => {
+              console.log(match);
               if (match) {
-                let newPass = "a";
-                if (changePass) {
-
-                }
-                user.update({
-                  newFirstName,
-                  newEmail,
-                  newLastName,
-                  newPassword
-                }, {
-                  where: {
-                    id,
-                    firstName,
-                    lastName,
-                    email,
-                  },
-
-                });
-                res.status(200).json({ "message": match });
+                resp[0].update({
+                  firstName: newFirstName || firstName,
+                  email: newEmail || email,
+                  lastName: newLastName || lastName
+                })
+                  .then((resp) => {
+                    return res.status(200).json({ "message": match });
+                  })
+                  .catch((err) => {
+                    return res.status(401).json({ "message:": "Update isn't complete" });
+                  });
               } else {
-                res.status(401).json({ "message:": "Password not matchs" });
+                return res.status(401).json({ "message:": "Password not matchs" });
               }
-
-              console.log(result);
             })
             .catch((error) => {
-              res.status(400).json({ "message1": error })
+              console.log(error);
+              return res.status(400).json({ "message": error })
             })
         } else {
-          res.status(400).json({ "message": "User not found!" })
+          return res.status(400).json({ "message": "User not found!" })
         }
       })
       .catch((err) => {
-        res.status(400).json({ "message": "User not found" })
+        return res.status(400).json({ "message": "User not found" })
       })
   },
 
