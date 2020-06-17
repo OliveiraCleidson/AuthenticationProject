@@ -10,8 +10,24 @@ router.get('/:id', celebrate({
     id: Joi.number().required()
   })
 }), user.getById);
-router.delete('/:id', user.delete);
-router.put('/:id', user.update);
+router.delete('/:id', celebrate({
+  [Segments.PARAMS]: Joi.object().keys({
+    id: Joi.number().required()
+  })
+}), user.delete);
+
+router.put('/:id', celebrate({
+  [Segments.PARAMS]: Joi.object().keys({
+    id: Joi.number().required()
+  }),
+  [Segments.BODY]: Joi.object().keys({
+    newFirstName: Joi.string().min(2),
+    newLastName: Joi.string().min(2),
+    newEmail: Joi
+      .string().email({ minDomainSegments: 2, tlds: true }),
+    password: Joi.string().required().min(6)
+  })
+}), user.update);
 
 router.post('/', celebrate({
   [Segments.BODY]: Joi.object().keys({

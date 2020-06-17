@@ -54,24 +54,24 @@ module.exports = {
             res.status(400).send(error)
           });
       })
-      .catch((err) => { console.log(err) });
+      .catch((err) => {
+        res.status(500);
+        console.log(err)
+      });
   },
 
   update(req, res) {
     const { id } = req.params;
-    const { password } = req.body;
-    const { newFirstName, newLastName, newEmail } = req.body;
+    const { password, newFirstName, newLastName, newEmail } = req.body;
     return user.findByPk(id)
       .then((userResult) => {
         if (userResult != null) {
           const { firstName, lastName, email } = userResult;
-          console.log(firstName);
           //Compare the password with the hash password
           bcrypt.compare(password, userResult.password)
             .then((match) => {
               //If it is validate
               if (match) {
-                console.log(userResult);
                 //Update the user that matches with password
                 userResult.update({
                   firstName: newFirstName || firstName,
@@ -100,6 +100,21 @@ module.exports = {
   },
 
   delete(req, res) {
-    res.send('This is ok! Delete!');
+    const { id } = req.params;
+    user.findByPk(id)
+      .then((userQuery) => {
+        if (userQuery) {
+          userQuery.destroy()
+            .then((destroyed) => {
+              console.log(destroyed);
+              return res.status(200).json("Deleted")
+            })
+            .catch((err) => {
+              return res.status(500).json("Not possible delete")
+            })
+        } else {
+          return res.status(404).json("User not found");
+        }
+      })
   }
 }
