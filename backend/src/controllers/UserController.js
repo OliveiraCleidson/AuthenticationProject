@@ -20,12 +20,12 @@ module.exports = {
     const { id } = req.params;
     return user.findAll({
       where: {
-        id: id
+        id
       }
     })
-      .then((users) => {
-        if (users.length === 1) {
-          res.send(users).status(200)
+      .then((user) => {
+        if (user.length === 1) {
+          res.json(user).status(200)
         } else {
           res.status(406).json({
             "Message": "User not found"
@@ -38,6 +38,7 @@ module.exports = {
   create(req, res) {
     const { firstName, lastName, email } = req.body;
     let { password } = req.body;
+    // Encrypt the Pass
     return bcrypt.hash(password, saltRounds)
       .then((hash) => {
         password = hash;
@@ -60,8 +61,55 @@ module.exports = {
       .catch((err) => { console.log(err) });
   },
 
-  update(req, res) {
-    res.send('This is ok! Update!');
+  async update(req, res) {
+    const { firstName, lastName, email, password, id } = req.body;
+    const { newFirstName, newLastName, newEmail, newPassword, changePass = 0 } = req.body;
+    return user.findAll({
+      where: {
+        id
+      }
+    })
+      .then((resp) => {
+        if (resp.length === 1) {
+          const hash = resp[0].password;
+          bcrypt.compare(password, hash)
+            .then((match) => {
+              if (match) {
+                let newPass = "a";
+                if (changePass) {
+
+                }
+                user.update({
+                  newFirstName,
+                  newEmail,
+                  newLastName,
+                  newPassword
+                }, {
+                  where: {
+                    id,
+                    firstName,
+                    lastName,
+                    email,
+                  },
+
+                });
+                res.status(200).json({ "message": match });
+              } else {
+                res.status(401).json({ "message:": "Password not matchs" });
+              }
+
+              console.log(result);
+            })
+            .catch((error) => {
+              res.status(400).json({ "message1": error })
+            })
+        } else {
+          res.status(400).json({ "message": "User not found!" })
+        }
+      })
+      .catch((err) => {
+        res.status(400).json({ "message": "User not found" })
+      })
   },
 
   delete(req, res) {
