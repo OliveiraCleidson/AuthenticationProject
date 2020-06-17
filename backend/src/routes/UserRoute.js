@@ -3,12 +3,6 @@ const router = express.Router();
 const user = require('../controllers').userController;
 const { celebrate, Joi, Segments } = require('celebrate');
 
-// Authentication Middleware - It will insert
-// router.use(function wait(req, res, next) {
-//   console.log('Wait');
-//   next();
-// });
-
 //Routing from /user
 router.get('/', user.list);
 router.get('/:id', celebrate({

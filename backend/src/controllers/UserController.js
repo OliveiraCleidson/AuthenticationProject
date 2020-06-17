@@ -18,13 +18,9 @@ module.exports = {
 
   getById(req, res) {
     const { id } = req.params;
-    return user.findAll({
-      where: {
-        id
-      }
-    })
+    return user.findByPk(id)
       .then((user) => {
-        if (user.length === 1) {
+        if (user) {
           res.json(user).status(200)
         } else {
           res.status(406).json({
@@ -61,47 +57,46 @@ module.exports = {
       .catch((err) => { console.log(err) });
   },
 
-  async update(req, res) {
-    const { firstName, lastName, email, password, id } = req.body;
-    let { newFirstName, newLastName, newEmail, newPassword } = req.body;
-    return user.findAll({
-      where: {
-        id
-      }
-    })
-      .then((resp) => {
-        if (resp.length === 1) {
-          const hash = resp[0].password;
-          bcrypt.compare(password, hash)
+  update(req, res) {
+    const { id } = req.params;
+    const { password } = req.body;
+    const { newFirstName, newLastName, newEmail } = req.body;
+    return user.findByPk(id)
+      .then((userResult) => {
+        if (userResult != null) {
+          const { firstName, lastName, email } = userResult;
+          console.log(firstName);
+          //Compare the password with the hash password
+          bcrypt.compare(password, userResult.password)
             .then((match) => {
-              console.log(match);
+              //If it is validate
               if (match) {
-                resp[0].update({
+                console.log(userResult);
+                //Update the user that matches with password
+                userResult.update({
                   firstName: newFirstName || firstName,
-                  email: newEmail || email,
-                  lastName: newLastName || lastName
+                  lastName: newLastName || lastName,
+                  email: newEmail || email
                 })
-                  .then((resp) => {
-                    return res.status(200).json({ "message": match });
+                  .then((updateUser) => {
+                    res.status(200).json(updateUser)
                   })
-                  .catch((err) => {
-                    return res.status(401).json({ "message:": "Update isn't complete" });
-                  });
-              } else {
-                return res.status(401).json({ "message:": "Password not matchs" });
+                  .catch((error) => {
+                    return res.status(500).json("Not possible update the user")
+                  })
+              } else { // It isn`t validate
+                return res.status(401).json("Invalid Password");
               }
             })
-            .catch((error) => {
-              console.log(error);
-              return res.status(400).json({ "message": error })
-            })
+            .catch((err) => res.send(500))
         } else {
-          return res.status(400).json({ "message": "User not found!" })
+          return res.status(404).json("User not found");
         }
+
       })
-      .catch((err) => {
-        return res.status(400).json({ "message": "User not found" })
-      })
+      .catch((error) => {
+        return res.status(500).json("Error in Search of User")
+      });
   },
 
   delete(req, res) {
