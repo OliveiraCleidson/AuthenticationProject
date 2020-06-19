@@ -2,9 +2,23 @@ const express = require('express');
 const router = express.Router();
 const user = require('../controllers').userController;
 const { celebrate, Joi, Segments } = require('celebrate');
+const passport = require('passport'),
+  BearerStrategy = require('passport-http-bearer');
+
+passport.use(new BearerStrategy(
+  function (token, done) {
+    console.log(token);
+    if (token === "123456") {
+      return done(null, { name: "Oliv" }, { scope: 'all' })
+    }
+    return done(null, false)
+  }
+));
+
+
 
 //Routing from /user
-router.get('/', user.list);
+router.get('/', passport.authenticate('bearer', { session: false }), user.list);
 router.get('/:id', celebrate({
   [Segments.PARAMS]: Joi.object().keys({
     id: Joi.number().required()
