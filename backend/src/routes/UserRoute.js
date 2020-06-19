@@ -7,30 +7,35 @@ const passport = require('passport'),
 
 passport.use(new BearerStrategy(
   function (token, done) {
-    console.log(token);
     if (token === "123456") {
-      return done(null, { name: "Oliv" }, { scope: 'all' })
+      return done(null, { name: "API Test" }, { scope: 'all' })
     }
     return done(null, false)
   }
 ));
 
-
-
 //Routing from /user
-router.get('/', passport.authenticate('bearer', { session: false }), user.list);
-router.get('/:id', celebrate({
+router.get('/', [passport.authenticate('bearer', { session: false }),
+celebrate({
   [Segments.PARAMS]: Joi.object().keys({
     id: Joi.number().required()
   })
-}), user.getById);
+})], user.list);
+
+router.get('/:id', [passport.authenticate('bearer', { session: false }),
+celebrate({
+  [Segments.PARAMS]: Joi.object().keys({
+    id: Joi.number().required()
+  })
+})], user.getById);
 router.delete('/:id', celebrate({
   [Segments.PARAMS]: Joi.object().keys({
     id: Joi.number().required()
   })
 }), user.delete);
 
-router.put('/:id', celebrate({
+router.put('/:id', [passport.authenticate('bearer', { session: false }),
+celebrate({
   [Segments.PARAMS]: Joi.object().keys({
     id: Joi.number().required()
   }),
@@ -41,9 +46,10 @@ router.put('/:id', celebrate({
       .string().email({ minDomainSegments: 2, tlds: true }),
     password: Joi.string().required().min(6)
   })
-}), user.update);
+})], user.update);
 
-router.post('/', celebrate({
+router.post('/', [passport.authenticate('bearer', { session: false }),
+celebrate({
   [Segments.BODY]: Joi.object().keys({
     firstName: Joi.string().required().min(2),
     lastName: Joi.string().min(2),
@@ -52,7 +58,7 @@ router.post('/', celebrate({
       .required(),
     password: Joi.string().required().min(6)
   })
-}), user.create);
+})], user.create);
 
 module.exports = router;
 
