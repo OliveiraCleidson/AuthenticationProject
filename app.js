@@ -11,12 +11,8 @@ app.use(passport.session());
 // Routes
 app.use('/user', routes.userRoute);
 
-app.get('/', function (req, res) {
-  res.send('Hello World!');
-});
-
 app.use(errors());
 
 app.listen(3000, function () {
-  console.log('Example app listening on port 3000!');
+  console.log('Authentication API');
 });
