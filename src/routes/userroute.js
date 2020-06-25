@@ -15,12 +15,7 @@ passport.use(new BearerStrategy(
 ));
 
 //Routing from /user
-router.get('/', [passport.authenticate('bearer', { session: false }),
-celebrate({
-  [Segments.PARAMS]: Joi.object().keys({
-    id: Joi.number().required()
-  })
-})], user.list);
+router.get('/', passport.authenticate('bearer', { session: false }), user.list);
 
 router.get('/:id', [passport.authenticate('bearer', { session: false }),
 celebrate({
@@ -40,23 +35,27 @@ celebrate({
     id: Joi.number().required()
   }),
   [Segments.BODY]: Joi.object().keys({
-    newFirstName: Joi.string().min(2),
-    newLastName: Joi.string().min(2),
-    newEmail: Joi
-      .string().email({ minDomainSegments: 2, tlds: true }),
-    password: Joi.string().required().min(6)
+    user: {
+      firstName: Joi.string().min(2),
+      lastName: Joi.string().min(2),
+      email: Joi
+        .string().email({ minDomainSegments: 2, tlds: true }),
+      password: Joi.string().min(6)
+    }
   })
 })], user.update);
 
 router.post('/', [passport.authenticate('bearer', { session: false }),
 celebrate({
   [Segments.BODY]: Joi.object().keys({
-    firstName: Joi.string().required().min(2),
-    lastName: Joi.string().min(2),
-    email: Joi
-      .string().email({ minDomainSegments: 2, tlds: true })
-      .required(),
-    password: Joi.string().required().min(6)
+    user: {
+      firstName: Joi.string().required().min(2),
+      lastName: Joi.string().min(2),
+      email: Joi
+        .string().email({ minDomainSegments: 2, tlds: true })
+        .required(),
+      password: Joi.string().required().min(6)
+    }
   })
 })], user.create);
 

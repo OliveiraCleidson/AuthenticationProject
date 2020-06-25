@@ -6,13 +6,13 @@ module.exports = {
   list(req, res) {
     return user
       .findAll({
-        order: [['firstName', 'DESC']],
+        order: [['id', 'ASC']],
       })
       .then((users) => {
         res.status(200).send(users);
       })
       .catch((error) => {
-        res.status(400).send(error)
+        res.status(400).send(error.toString())
       });
   },
 
@@ -27,94 +27,31 @@ module.exports = {
             "Message": "User not found"
           })
         }
-
-      });
+      })
+      .catch((error) => res.status(500).json(error.toString()));
   },
 
   create(req, res) {
-    const { firstName, lastName, email } = req.body;
-    let { password } = req.body;
-    // Encrypt the Pass
-    return bcrypt.hash(password, saltRounds)
-      .then((hash) => {
-        password = hash;
-        user
-          .create({
-            firstName: firstName,
-            lastName: lastName,
-            email: email,
-            password: password,
-          })
-          .then((user) => {
-            return res.status(201).json({
-              'Message': 'The user has been created'
-            });
-          })
-          .catch((error) => {
-            res.status(400).send(error)
-          });
-      })
-      .catch((err) => {
-        res.status(500);
-        console.log(err)
-      });
+    const newUserData = req.body.user;
+    return user.createWithEncryptedPass(newUserData)
+      .then((newUser) => res.status(201).json(newUser))
+      .catch((err) => res.status(500).json(err.toString()));
   },
 
   update(req, res) {
-    const { id } = req.params;
-    const { password, newFirstName, newLastName, newEmail } = req.body;
-    return user.findByPk(id)
-      .then((userResult) => {
-        if (userResult != null) {
-          const { firstName, lastName, email } = userResult;
-          //Compare the password with the hash password
-          bcrypt.compare(password, userResult.password)
-            .then((match) => {
-              //If it is validate
-              if (match) {
-                //Update the user that matches with password
-                userResult.update({
-                  firstName: newFirstName || firstName,
-                  lastName: newLastName || lastName,
-                  email: newEmail || email
-                })
-                  .then((updateUser) => {
-                    res.status(200).json(updateUser)
-                  })
-                  .catch((error) => {
-                    return res.status(500).json("Not possible update the user")
-                  })
-              } else { // It isn`t validate
-                return res.status(401).json("Invalid Password");
-              }
-            })
-            .catch((err) => res.send(500))
-        } else {
-          return res.status(404).json("User not found");
-        }
-
-      })
+    const idUser = req.params.id;
+    const dataWillUpdate = user.build(req.body.user);
+    return user.updateByPk(idUser, dataWillUpdate)
+      .then((updatedUser) => res.status(200).json(updatedUser))
       .catch((error) => {
-        return res.status(500).json("Error in Search of User")
+        res.status(500).json(error.toString())
       });
   },
 
   delete(req, res) {
     const { id } = req.params;
-    user.findByPk(id)
-      .then((userQuery) => {
-        if (userQuery) {
-          userQuery.destroy()
-            .then((destroyed) => {
-              console.log(destroyed);
-              return res.status(200).json("Deleted")
-            })
-            .catch((err) => {
-              return res.status(500).json("Not possible delete")
-            })
-        } else {
-          return res.status(404).json("User not found");
-        }
-      })
+    return user.deleteByPk(id)
+      .then((deletedUser) => res.status(200).json(`Deleted User ID ${id}`))
+      .catch((err) => res.status(500).json(err.toString()));
   }
 }
