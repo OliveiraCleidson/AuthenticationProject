@@ -1,8 +1,6 @@
 This repository was made for me to practice programming, with this small project I was able to solidify some of my knowledge and I hope it serves to solve doubts about the technologies I used. <br />
 #### This project is about a simple CRUD and about protecting access to API using token
 
-This project is about 
-
 ## To Run Locally
 Clone this repository
 >git clone https://github.com/OliveiraCleidson/AuthenticationProject.git
